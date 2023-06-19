@@ -145,6 +145,8 @@
     "https://esm.sh/v126/react@18.2.0/jsx-runtime": "f778682d51ee7b0b7229bf98d321cb29451591d6d5a0d7a4723963afaf6096f6",
     "https://esm.sh/v126/scheduler@0.23.0/denonext/scheduler.mjs": "69005eb830c0a486d51875e52d1a85443dc8d32b0b6ad1e3f06baceb55ed4cba",
     "https://esm.sh/v126/set-cookie-parser@2.6.0/denonext/set-cookie-parser.mjs": "cd71b512f7bc0a5f8ca55e8b125d9f3efde896b81a6cbb6827b01af8259b5007",
-    "https://esm.sh/v126/superjson@1.12.3/denonext/superjson.mjs": "253373c9b93276d76211c5d56bb01d1330052df04739f519755b4de76db803ab"
+    "https://esm.sh/v126/superjson@1.12.3/denonext/superjson.mjs": "253373c9b93276d76211c5d56bb01d1330052df04739f519755b4de76db803ab",
+    "https://esm.sh/v126/zod@3.21.4/denonext/zod.mjs": "2dcf8440327df3487c3f27b328c6042e7d673a59f57d33cf90d058ee4b089d64",
+    "https://esm.sh/zod@3.21.4": "003335ea7e78f4eab7ba882701c6e6fe1b41e9c51d74b8f18f5fa61cbf3d8a5d"
   }
 }

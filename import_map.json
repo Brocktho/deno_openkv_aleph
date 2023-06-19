@@ -18,7 +18,8 @@
     "react-spring": "https://esm.sh/react-spring@9.7.1",
     "superjson": "https://esm.sh/superjson@1.12.3",
     "remix-deno": "https://esm.sh/@remix-run/deno@1.17.1",
-    "dotenv": "https://deno.land/std/dotenv/mod.ts"
+    "dotenv": "https://deno.land/std@0.192.0/dotenv/mod.ts",
+    "zod": "https://esm.sh/zod@3.21.4"
   },
   "scopes": {}
 }

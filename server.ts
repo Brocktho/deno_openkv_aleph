@@ -1,13 +1,13 @@
 /** @format */
 
-import { serve, type Middleware } from "aleph/server";
+import { serve } from "aleph/server";
 import denoDeploy from "aleph/plugins/deploy";
 import react from "aleph/plugins/react";
 import unocss from "aleph/plugins/unocss";
-import config from "./unocss.config.ts";
-import modules from "./routes/_export.ts";
+import config from "~/unocss.config.ts";
+import modules from "~/routes/_export.ts";
 import { createCookieSessionStorage } from "remix-deno";
-import { load } from "dotenv";
+import { load } from "std/dotenv/mod.ts";
 
 const env = await load();
 

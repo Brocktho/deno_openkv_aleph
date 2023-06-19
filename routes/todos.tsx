@@ -1,15 +1,25 @@
 /** @format */
 
-import { FormEvent, useEffect } from "react";
 import { Head } from "aleph/react";
 import { json, redirecting, useTypedData } from "~/AlephRequest.ts";
-import { redirect } from "https://deno.land/x/aleph@1.0.0-beta.43/framework/core/redirect.ts";
 import {
 	RequireUserId,
 	SetUser,
 	UserSession,
 	commitSession,
-} from "../server.ts";
+	user_key,
+} from "~/server.ts";
+import {
+	MethodModel,
+	RequireFormModel,
+	TypedDb,
+} from "../FormHelpers/FormValues.ts";
+import {
+	CreateTodoModel,
+	TargetTodoModel,
+	TodosModel,
+} from "../models/Todos.ts";
+import { InvalidMethod } from "../ResponseHelpers.ts";
 
 type Todo = {
 	id: Date;
@@ -21,15 +31,14 @@ export const data = {
 	defer: false,
 	fetch: async (req: Request) => {
 		const session = await UserSession(req);
-		let user_id: string | null = session.get("user_id");
+		let user_id: string | null = session.get(user_key);
 		if (!user_id) {
 			user_id = crypto.randomUUID();
 			SetUser(session, user_id);
 		}
-		const db = await Deno.openKv();
-		const current_todos = await db.get(["todos", user_id]);
+		const { value: todos } = await TypedDb(["todos", user_id], TodosModel);
 		return json(
-			{ todos: (current_todos.value || []) as Todo[] },
+			{ todos: todos },
 			{
 				headers: {
 					"Set-Cookie": await commitSession(session),
@@ -40,46 +49,45 @@ export const data = {
 };
 
 export async function mutation(req: Request): Promise<Response> {
+	const method = req.method.toLowerCase();
 	const user = await RequireUserId(req);
-	const db = await Deno.openKv();
-	const todos_entry = await db.get(["todos", user]);
-	const todos = (todos_entry.value || []) as Todo[];
-	switch (req.method) {
-		case "POST": {
+	const { value: todos, db } = await TypedDb(["todos", user], TodosModel);
+	switch (method) {
+		case "post": {
 			const data = await req.formData();
-			const message = data.get("message") || ("no message" as string);
-			if (typeof message === "string") {
-				todos.push({ id: new Date(), message, completed: false });
-				db.set(["todos", user], todos);
-			}
-			break;
+			const { message } = RequireFormModel(data, CreateTodoModel);
+			todos.push({ id: new Date(), message, completed: false });
+			await db.set(["todos", user], todos);
+			return redirecting("/todos");
 		}
-		case "PATCH": {
-			const { id, message, completed } = await req.json();
-			const todo = todos.find(todo => todo.id.getDate() === id);
-			if (todo) {
-				todo.completed = completed;
-				db.set(["todos", user], todos);
+		case "patch": {
+			console.log("patch");
+			console.log(data);
+			const { id: update_id, completed } = RequireFormModel(
+				data,
+				TargetTodoModel
+			);
+			const update_todo = todos.find(
+				todo => todo.id.getDate() === update_id
+			);
+			if (update_todo) {
+				update_todo.completed = !completed;
+				await db.set(["todos", user], todos);
 			}
-			break;
+			return redirecting("/todos");
 		}
-		case "DELETE": {
-			const { id, message, completed } = await req.json();
-			const todo = todos.find(todo => todo.id.getDate() === id);
-			if (todo) {
-				todos.splice(todos.indexOf(todo), 1);
-				db.set(["todos", user], todos);
-			}
+		case "delete": {
+			await db.set(["todos", user], []);
+			return redirecting("/todos");
 		}
 	}
-	return redirecting("/todos");
+	return InvalidMethod();
 }
 
 export default function Todos() {
 	const {
 		data: { todos },
 		isMutating,
-		mutation,
 	} = useTypedData<{ todos: Todo[] }>();
 
 	return (
@@ -102,45 +110,38 @@ export default function Todos() {
 			</h1>
 			<ul className="mt-6">
 				{todos.map(todo => (
-					<li
-						className="flex items-center justify-between gap-2 px-3 py-1.5"
-						key={
-							todo.id instanceof Date
-								? todo.id.getDate()
-								: todo.id
-						}>
-						<div
-							className={[
-								"flex items-center justify-center w-4.5 h-4.5 border border-gray-300 rounded-full",
-								todo.completed && "!border-teal-500/50",
-							]
-								.filter(Boolean)
-								.join(" ")}
-							onClick={() =>
-								mutation.patch(
-									{ id: todo.id, completed: !todo.completed },
-									"replace"
-								)
-							}>
-							{todo.completed && (
-								<span className="inline-block w-1.5 h-1.5 bg-teal-500 rounded-full" />
-							)}
-						</div>
-						<label
-							className={[
-								"flex-1 text-xl text-gray-700 font-300",
-								todo.completed && "line-through !text-gray-400",
-							]
-								.filter(Boolean)
-								.join(" ")}>
-							{todo.message}
-						</label>
-						{
-							//todo.id > 0 && (
+					<form key={todo.message} method="POST">
+						<input type="hidden" name="id" value={todo.message} />
+						<input
+							type="hidden"
+							name="completed"
+							value={`${todo.completed}`}
+						/>
+						<li className="flex items-center justify-between gap-2 px-3 py-1.5">
 							<button
-								onClick={() =>
-									mutation.delete({ id: todo.id }, "replace")
-								}>
+								name="type"
+								value="patch"
+								className={[
+									"flex items-center justify-center w-4.5 h-4.5 border border-gray-300 rounded-full",
+									todo.completed && "!border-teal-500/50",
+								]
+									.filter(Boolean)
+									.join(" ")}>
+								{todo.completed && (
+									<span className="inline-block w-1.5 h-1.5 bg-teal-500 rounded-full" />
+								)}
+							</button>
+							<label
+								className={[
+									"flex-1 text-xl text-gray-700 font-300",
+									todo.completed &&
+										"line-through !text-gray-400",
+								]
+									.filter(Boolean)
+									.join(" ")}>
+								{todo.message}
+							</label>
+							<button type="submit" name="type" value="delete">
 								<svg
 									className="w-5 h-5 text-gray-300 hover:text-red-500"
 									viewBox="0 0 32 32"
@@ -152,9 +153,8 @@ export default function Todos() {
 									/>
 								</svg>
 							</button>
-							//)
-						}
-					</li>
+						</li>
+					</form>
 				))}
 			</ul>
 			<form className="mt-6" method="POST">
