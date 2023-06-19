@@ -19,4 +19,4 @@ export const TodoModel = z.object({
 	completed: z.boolean().default(false),
 });
 
-export const TodosModel = z.array(TodoModel).nullable().default([]);
+export const TodosModel = z.array(TodoModel).default([]);

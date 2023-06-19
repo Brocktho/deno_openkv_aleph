@@ -38,7 +38,10 @@ export const TypedDb = async <T extends ZodTypeAny>(
 ) => {
 	return await Deno.openKv().then(db => {
 		return db.get(db_key).then(entry => {
-			return { value: model.parse(entry.value) as z.infer<T>, db };
+			return {
+				value: model.parse(entry.value ?? undefined) as z.infer<T>,
+				db,
+			};
 		});
 	});
 };
