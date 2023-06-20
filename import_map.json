@@ -19,7 +19,9 @@
     "superjson": "https://esm.sh/superjson@1.12.3",
     "remix-deno": "https://esm.sh/@remix-run/deno@1.17.1",
     "dotenv": "https://deno.land/std@0.192.0/dotenv/mod.ts",
-    "zod": "https://esm.sh/zod@3.21.4"
+    "zod": "https://esm.sh/zod@3.21.4",
+    "react-aria": "https://esm.sh/react-aria@3.25.0",
+    "clsx": "https://esm.sh/clsx@1.2.1"
   },
   "scopes": {}
 }

@@ -9,23 +9,14 @@ import {
 	commitSession,
 	user_key,
 } from "~/server.ts";
-import {
-	MethodModel,
-	RequireFormModel,
-	TypedDb,
-} from "../FormHelpers/FormValues.ts";
+import { RequireFormModel, TypedDb } from "../FormHelpers/FormValues.ts";
 import {
 	CreateTodoModel,
 	TargetTodoModel,
+	Todo,
 	TodosModel,
 } from "../models/Todos.ts";
 import { InvalidMethod } from "../ResponseHelpers.ts";
-
-type Todo = {
-	id: Date;
-	message: string;
-	completed: boolean;
-};
 
 export const data = {
 	defer: false,
@@ -38,7 +29,7 @@ export const data = {
 		}
 		const { value: todos } = await TypedDb(["todos", user_id], TodosModel);
 		return json(
-			{ todos: todos },
+			{ todos },
 			{
 				headers: {
 					"Set-Cookie": await commitSession(session),
@@ -49,35 +40,36 @@ export const data = {
 };
 
 export async function mutation(req: Request): Promise<Response> {
-	const method = req.method.toLowerCase();
 	const user = await RequireUserId(req);
 	const { value: todos, db } = await TypedDb(["todos", user], TodosModel);
-	switch (method) {
-		case "post": {
-			const data = await req.formData();
+	const data = await req.formData();
+	const form_method = data.get("method");
+	switch (form_method) {
+		case "put": {
 			const { message } = RequireFormModel(data, CreateTodoModel);
-			todos.push({ id: new Date(), message, completed: false });
+			todos.push({ id: crypto.randomUUID(), message, completed: false });
 			await db.set(["todos", user], todos);
 			return redirecting("/todos");
 		}
 		case "patch": {
-			console.log("patch");
-			console.log(data);
 			const { id: update_id, completed } = RequireFormModel(
 				data,
 				TargetTodoModel
 			);
-			const update_todo = todos.find(
-				todo => todo.id.getDate() === update_id
-			);
+			const update_todo = todos.find(todo => todo.id === update_id);
 			if (update_todo) {
-				update_todo.completed = !completed;
+				update_todo.completed = completed !== "true";
 				await db.set(["todos", user], todos);
 			}
 			return redirecting("/todos");
 		}
 		case "delete": {
-			await db.set(["todos", user], []);
+			const { id: delete_id } = RequireFormModel(data, TargetTodoModel);
+			const delete_todo = todos.findIndex(todo => todo.id === delete_id);
+			if (delete_todo !== -1) {
+				todos.splice(delete_todo, 1);
+				await db.set(["todos", user], todos);
+			}
 			return redirecting("/todos");
 		}
 	}
@@ -89,7 +81,6 @@ export default function Todos() {
 		data: { todos },
 		isMutating,
 	} = useTypedData<{ todos: Todo[] }>();
-
 	return (
 		<div className="w-9/10 max-w-150 mx-auto mt-15">
 			<Head>
@@ -111,7 +102,7 @@ export default function Todos() {
 			<ul className="mt-6">
 				{todos.map(todo => (
 					<form key={todo.message} method="POST">
-						<input type="hidden" name="id" value={todo.message} />
+						<input type="hidden" name="id" value={todo.id} />
 						<input
 							type="hidden"
 							name="completed"
@@ -119,7 +110,7 @@ export default function Todos() {
 						/>
 						<li className="flex items-center justify-between gap-2 px-3 py-1.5">
 							<button
-								name="type"
+								name="method"
 								value="patch"
 								className={[
 									"flex items-center justify-center w-4.5 h-4.5 border border-gray-300 rounded-full",
@@ -141,7 +132,7 @@ export default function Todos() {
 									.join(" ")}>
 								{todo.message}
 							</label>
-							<button type="submit" name="type" value="delete">
+							<button type="submit" name="method" value="delete">
 								<svg
 									className="w-5 h-5 text-gray-300 hover:text-red-500"
 									viewBox="0 0 32 32"
@@ -158,6 +149,7 @@ export default function Todos() {
 				))}
 			</ul>
 			<form className="mt-6" method="POST">
+				<input type="hidden" name="method" value="put" />
 				<input
 					type="text"
 					className="block w-full py-2 px-4 text-2xl font-300 placeholder:italic placeholder:text-gray-400 bg-gray-50 rounded-lg outline-none"

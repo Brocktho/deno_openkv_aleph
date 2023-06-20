@@ -2,13 +2,10 @@
 
 // deno-lint-ignore-file
 
-import { serialize, deserialize, parse, stringify } from "superjson";
+import { serialize, deserialize } from "superjson";
 import { useData } from "https://deno.land/x/aleph@1.0.0-beta.43/framework/react/data.ts";
-import {
-	Mutation,
-	UpdateStrategy,
-} from "https://deno.land/x/aleph@1.0.0-beta.43/framework/react/context.ts";
-import { JSONValue } from "https://deno.land/std@0.180.0/jsonc/parse.ts";
+import { UpdateStrategy } from "https://deno.land/x/aleph@1.0.0-beta.43/framework/react/context.ts";
+import { JsonValue } from "std/jsonc/parse.ts";
 
 export type JsonResponse<T extends unknown = unknown> = Response & {
 	json(): Promise<T>;
@@ -35,8 +32,8 @@ export function json<T extends unknown>(
 	if (!headers.has("Content-Type")) {
 		headers.set("Content-Type", "application/json; charset=utf-8");
 	}
-
-	return new Response(stringifyType(data), {
+	const stringified = stringifyType(data);
+	return new Response(stringified, {
 		...responseInit,
 		headers,
 	}) as JsonResponse<typeof data>;
@@ -76,7 +73,7 @@ export const parseType = <T>(data: StringifiedReturn<T>) => {
 	} else if (data.__meta__) {
 		const meta = data.__meta__;
 		delete data.__meta__;
-		return deserialize<T>({ json: data as JSONValue, meta });
+		return deserialize<T>({ json: data as JsonValue, meta });
 	}
 	return data as T;
 };

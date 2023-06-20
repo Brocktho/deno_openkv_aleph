@@ -4,10 +4,10 @@ import { serve } from "aleph/server";
 import denoDeploy from "aleph/plugins/deploy";
 import react from "aleph/plugins/react";
 import unocss from "aleph/plugins/unocss";
-import config from "~/unocss.config.ts";
-import modules from "~/routes/_export.ts";
+import config from "./unocss.config.ts";
+import modules from "./routes/_export.ts";
 import { createCookieSessionStorage } from "remix-deno";
-import { load } from "std/dotenv/mod.ts";
+import { load } from "dotenv";
 
 const env = await load();
 

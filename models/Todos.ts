@@ -9,14 +9,16 @@ export const CreateTodoModel = z.object({
 });
 
 export const TargetTodoModel = z.object({
-	id: z.coerce.number(),
-	completed: z.boolean().default(false),
+	id: z.string().uuid(),
+	completed: z.enum(["true", "false"]),
 });
 
 export const TodoModel = z.object({
-	id: z.date(),
+	id: z.string().uuid(),
 	message: MessageModel,
 	completed: z.boolean().default(false),
 });
+
+export type Todo = z.infer<typeof TodoModel>;
 
 export const TodosModel = z.array(TodoModel).default([]);
