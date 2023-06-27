@@ -15,6 +15,7 @@ import type {
 
 export interface DefaultCardProps<D extends React.ElementType = "section">
 	extends DefaultOverridableProps<D> {
+	interactable?: boolean;
 	clsxs?: ClassOptions;
 	variant?: CardVariants;
 	disabled?: boolean;
@@ -24,15 +25,20 @@ export interface DefaultCardProps<D extends React.ElementType = "section">
 export type CardProps<D extends React.ElementType = "section"> =
 	OverridableProps<D, DefaultCardProps<D>>;
 
+//TODO: Make Draggable state, probably want to set a z-index on this element when dragging. Maybe make a z-index across all items based on elevation?
+// Definitely want to keep it as a low value for all z-index stuff, it can be annoying otherwise.
+
 export const BaseCardClsxs: ClassOptions = {
 	h: "h-auto",
 	w: "w-auto",
-	p: "px-3",
-	rounded: "rounded-full",
+	p: "p-3",
+	before: "before:absolute before:w-full before:h-full before:rounded-xl before:z-[1] before:top-0 before:left-0",
+	rounded: "rounded-xl",
 	transition: "transition motion-reduce:transition-none",
 	duration: "duration-200",
 	align: "items-center",
 	display: "flex flex-col",
+	gap: "gap-3",
 	position: "relative",
 };
 
@@ -40,33 +46,31 @@ export const ElevatedCardClsxs: ClassOptions = {
 	...BaseCardClsxs,
 	shadow: "shadow",
 	bg: "bg-surface-light dark:bg-surface-dark",
-	text: "text-primary-light dark:text-primary-dark",
 	disabled:
-		"bg-transparent before:bg-primary-light shadow-sm before:dark:bg-primary-dark text-on-surface-light dark:text-on-surface-dark opacity-disabled before:opacity-active",
-	hover: "before:hover:bg-primary-light before:dark:hover:bg-primary-dark before:hover:opacity-hover before:hover:shadow-md",
+		"disabled:shadow-md dark:text-on-surface-dark opacity-disabled before:opacity-active",
+	hover: "before:hover:bg-on-surface-light before:dark:hover:bg-on-surface-dark before:hover:opacity-hover hover:shadow-md",
 	focus_visible:
-		"focus-visible:outline-none before:focus-visible:bg-primary-light before:dark:focus-visible:bg-primary-dark before:focus-visible:opacity-focus",
-	active: "before:active:bg-primary-light before:dark:active:bg-primary-dark before:active:opacity-active before:active:shadow",
+		"focus-visible:shadow focus-visible:outline-none before:focus-visible:bg-on-surface-light before:dark:focus-visible:bg-on-surface-dark before:focus-visible:opacity-focus",
+	active: "focus-visible:shadow before:active:bg-on-surface-light before:dark:active:bg-on-surface-dark before:active:opacity-active",
 };
 
 export const FilledCardClsxs: ClassOptions = {
 	...BaseCardClsxs,
 	shadow: "shadow-sm",
-	bg: "bg-primary-light dark:bg-primary-dark",
-	text: "text-on-primary-light dark:text-on-primary-dark",
+	bg: "light:bg-primary-light dark:bg-primary-dark",
 	disabled:
-		"bg-transparent before:bg-on-surface-light before:dark:bg-on-surface-dark text-on-surface-light dark:text-on-surface-dark opacity-disabled before:opacity-active",
-	hover: "before:hover:bg-on-primary-light before:dark:hover:bg-on-primary-dark before:hover:shadow before:hover:opacity-hover",
+		"bg-transparent before:light:bg-on-surface-light before:dark:bg-on-surface-dark text-on-surface-light dark:text-on-surface-dark opacity-disabled before:opacity-active",
+	hover: "before:light:hover:bg-on-primary-light before:dark:hover:bg-on-primary-dark before:hover:shadow before:hover:opacity-hover",
 	focus_visible:
-		"focus-visible:outline-none before:focus-visible:bg-on-primary-light before:dark:focus-visible:bg-on-primary-dark before:focus-visible:shadow-sm before:focus-visible:opacity-focus",
-	active: "before:active:bg-on-primary-light before:dark:active:bg-on-primary-dark before:active:shadow-sm before:active:opacity-active",
+		"focus-visible:outline-none before:light:focus-visible:bg-on-primary-light before:dark:focus-visible:bg-on-primary-dark before:focus-visible:shadow-sm before:focus-visible:opacity-focus",
+	active: "before:light:active:bg-on-primary-light before:dark:active:bg-on-primary-dark before:active:shadow-sm before:active:opacity-active",
 };
 
 export const OutlinedCardClsxs: ClassOptions = {
 	...BaseCardClsxs,
-	bg: "bg-transparent",
-	text: "text-primary-light dark:text-primary-dark",
-	border: "border border-outline-light dark:border-outline-dark",
+	bg: "light:bg-surface-light dark:bg-surface-dark",
+	shadow: "shadow",
+	border: "border light:border-outline-light dark:border-outline-dark",
 	hover: "before:hover:shadow-inner before: before:hover:bg-primary-light before:dark:hover:bg-primary-dark before:hover:opacity-hover",
 	focus_visible:
 		"focus-visible:outline-none before:focus-visible:bg-primary-light before:dark:focus-visible:bg-primary-dark before:focus-visible:opacity-focus",
@@ -91,17 +95,33 @@ export const Card = forwardRef(function Card<
 		children,
 		clsxs,
 		disabled,
-		active,
 		variant = "elevated",
+		interactable = false,
 		className,
 		...rest
 	} = props;
-	const { disabledU, ...userClsx } = clsxs || {};
-	const { disabledDef, ...defaultClsx } = Variants[variant];
+	const {
+		disabled: disabledU,
+		hover: hoverU,
+		before: beforeU,
+		active: activeU,
+		...userClsx
+	} = clsxs || {};
+	const {
+		disabled: disabledDef,
+		hover: hoverDef,
+		before: beforeDef,
+		active: activeDef,
+		...defaultClsx
+	} = Variants[variant];
 	const finalProps = {
 		...rest,
 		ref,
+		tabIndex: interactable ? 0 : -1,
 		className: clsx(
+			CreateConditionalClass(interactable, beforeDef, beforeU),
+			CreateConditionalClass(interactable, hoverDef, hoverU),
+			CreateConditionalClass(interactable, activeDef, activeU),
 			CreateConditionalClass(disabled, disabledDef, disabledU),
 			...CreateClasses(defaultClsx, userClsx),
 			className

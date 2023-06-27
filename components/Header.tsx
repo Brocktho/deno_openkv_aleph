@@ -6,9 +6,9 @@ import { useTransition, animated } from "react-spring";
 
 export default function Header() {
 	const [transitions, api] = useTransition(true, () => ({
-		from: { opacity: 0, transform: "translateY(-100%)" },
+		from: { opacity: 1, transform: "translateY(0%)" },
 		enter: { opacity: 1, transform: "translateY(0%)" },
-		leave: { opacity: 0, transform: "translateY(-100%)" },
+		leave: { opacity: 0, transform: "translateY(0%)" },
 	}));
 	useEffect(() => {
 		api.start();
@@ -17,7 +17,7 @@ export default function Header() {
 	return transitions((styles, item) => (
 		<animated.header
 			style={styles}
-			className="shadow-xl sticky top-0 w-full h-20 p-3 flex flex-row items-center justify-between">
+			className="shadow-xl sticky top-0 w-full h-20 p-3 flex flex-row items-center justify-between z-10">
 			<div>Logo</div>
 			<div className="flex flex-row gap-3">
 				<NavLink activeClassName={active_style} to="/#about">

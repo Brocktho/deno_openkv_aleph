@@ -797,6 +797,10 @@ video {
   top: 0px;
 }
 
+.z-10 {
+  z-index: 10;
+}
+
 .m-4 {
   margin: 1rem;
 }
@@ -902,6 +906,10 @@ video {
   width: 6rem;
 }
 
+.w-32 {
+  width: 8rem;
+}
+
 .w-4 {
   width: 1rem;
 }
@@ -932,6 +940,14 @@ video {
 
 .min-w-\[5rem\] {
   min-width: 5rem;
+}
+
+.min-w-\[8rem\] {
+  min-width: 8rem;
+}
+
+.max-w-md {
+  max-width: 28rem;
 }
 
 .max-w-xl {
@@ -970,6 +986,10 @@ video {
 
 .flex-col {
   flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
 }
 
 .items-start {
@@ -1120,6 +1140,10 @@ video {
 
 .text-center {
   text-align: center;
+}
+
+.text-start {
+  text-align: start;
 }
 
 .text-2xl {
@@ -1283,6 +1307,21 @@ video {
   position: absolute;
 }
 
+.before\:left-0::before {
+  content: var(--tw-content);
+  left: 0px;
+}
+
+.before\:top-0::before {
+  content: var(--tw-content);
+  top: 0px;
+}
+
+.before\:z-\[1\]::before {
+  content: var(--tw-content);
+  z-index: 1;
+}
+
 .before\:h-full::before {
   content: var(--tw-content);
   height: 100%;
@@ -1353,6 +1392,12 @@ video {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
+.hover\:shadow-md:hover {
+  --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
 .before\:hover\:bg-on-primary-container-light:hover::before {
   content: var(--tw-content);
   background-color: hsl(var(--md-sys-color-on-primary-container-light) / 1);
@@ -1366,6 +1411,11 @@ video {
 .before\:hover\:bg-on-secondary-container-light:hover::before {
   content: var(--tw-content);
   background-color: hsl(var(--md-sys-color-on-secondary-container-light) / 1);
+}
+
+.before\:hover\:bg-on-surface-light:hover::before {
+  content: var(--tw-content);
+  background-color: hsl(var(--md-sys-color-on-surface-light) / 1);
 }
 
 .before\:hover\:bg-primary-light:hover::before {
@@ -1404,6 +1454,12 @@ video {
   outline-offset: 2px;
 }
 
+.focus-visible\:shadow:focus-visible {
+  --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
 .focus-visible\:outline-none:focus-visible {
   outline: 2px solid transparent;
   outline-offset: 2px;
@@ -1422,6 +1478,11 @@ video {
 .before\:focus-visible\:bg-on-secondary-container-light:focus-visible::before {
   content: var(--tw-content);
   background-color: hsl(var(--md-sys-color-on-secondary-container-light) / 1);
+}
+
+.before\:focus-visible\:bg-on-surface-light:focus-visible::before {
+  content: var(--tw-content);
+  background-color: hsl(var(--md-sys-color-on-surface-light) / 1);
 }
 
 .before\:focus-visible\:bg-primary-light:focus-visible::before {
@@ -1486,6 +1547,11 @@ video {
   background-color: hsl(var(--md-sys-color-on-secondary-container-light) / 1);
 }
 
+.before\:active\:bg-on-surface-light:active::before {
+  content: var(--tw-content);
+  background-color: hsl(var(--md-sys-color-on-surface-light) / 1);
+}
+
 .before\:active\:bg-primary-light:active::before {
   content: var(--tw-content);
   background-color: hsl(var(--md-sys-color-primary-light) / 1);
@@ -1507,6 +1573,12 @@ video {
   content: var(--tw-content);
   --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.disabled\:shadow-md:disabled {
+  --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
@@ -1604,6 +1676,11 @@ video {
   background-color: hsl(var(--md-sys-color-on-secondary-container-dark) / 1);
 }
 
+:is(.dark .before\:dark\:hover\:bg-on-surface-dark:hover)::before {
+  content: var(--tw-content);
+  background-color: hsl(var(--md-sys-color-on-surface-dark) / 1);
+}
+
 :is(.dark .before\:dark\:hover\:bg-primary-dark:hover)::before {
   content: var(--tw-content);
   background-color: hsl(var(--md-sys-color-primary-dark) / 1);
@@ -1622,6 +1699,11 @@ video {
 :is(.dark .before\:dark\:focus-visible\:bg-on-secondary-container-dark:focus-visible)::before {
   content: var(--tw-content);
   background-color: hsl(var(--md-sys-color-on-secondary-container-dark) / 1);
+}
+
+:is(.dark .before\:dark\:focus-visible\:bg-on-surface-dark:focus-visible)::before {
+  content: var(--tw-content);
+  background-color: hsl(var(--md-sys-color-on-surface-dark) / 1);
 }
 
 :is(.dark .before\:dark\:focus-visible\:bg-primary-dark:focus-visible)::before {
@@ -1669,7 +1751,18 @@ video {
   background-color: hsl(var(--md-sys-color-on-secondary-container-dark) / 1);
 }
 
+:is(.dark .before\:dark\:active\:bg-on-surface-dark:active)::before {
+  content: var(--tw-content);
+  background-color: hsl(var(--md-sys-color-on-surface-dark) / 1);
+}
+
 :is(.dark .before\:dark\:active\:bg-primary-dark:active)::before {
   content: var(--tw-content);
   background-color: hsl(var(--md-sys-color-primary-dark) / 1);
+}
+
+@media (min-width: 640px) {
+  .sm\:flex-row {
+    flex-direction: row;
+  }
 }

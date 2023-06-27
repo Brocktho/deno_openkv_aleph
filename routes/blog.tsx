@@ -6,11 +6,15 @@ import { GetManyTyped, TypedDb } from "~/FormHelpers/FormValues.ts";
 import { Blog, BlogKey, BlogModel } from "~/models/Blogs.ts";
 import { Link } from "aleph/react";
 import Button from "../components/Button/index.tsx";
+import BlogPostCard from "../components/BlogPost.tsx";
+import H1 from "../components/H1.tsx";
 
 export const data = {
 	defer: false,
 	fetch: async () => {
-		const blog_posts = await GetManyTyped([BlogKey], BlogModel);
+		const blog_posts = (await GetManyTyped([BlogKey], BlogModel)).sort(
+			(prev, next) => (prev.created_at > next.created_at ? -1 : 1)
+		);
 		return json({ blog_posts });
 	},
 };
@@ -27,18 +31,30 @@ const BlogRoute = () => {
 			</Head>
 
 			<div className="flex flex-row items-center justify-between px-3">
-				<h1 className="text-xl">Welcome to my blog!</h1>
-				<Button variant="outlined" component={Link} to="/createBlog">
+				<H1 className="text-center">Welcome to my blog!</H1>
+				<Button
+					variant="outlined"
+					clsxs={{ w: "w-32" }}
+					component={Link}
+					to="/createBlog">
 					+ Blog
 				</Button>
 			</div>
-			<div className="flex flex-col items-start gap-3">
+			<div className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3">
 				{blog_posts.length === 0 ? (
-					<div className="w-full text-center">No posts yet!</div>
+					<H1 className="text-center">No posts yet!</H1>
 				) : (
 					blog_posts.map(post => {
+						const continued = post.content.length > 30;
 						return (
-							<Link to={`/blogs/${post.id}`}>{post.title}</Link>
+							<BlogPostCard
+								id={post.id}
+								title={post.title}
+								description={`${post.content.substring(0, 30)}${
+									continued ? "..." : ""
+								}`}
+								created_at={post.created_at}
+							/>
 						);
 					})
 				)}
