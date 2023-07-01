@@ -15,7 +15,7 @@
   },
   "importMap": "./import_map.json",
   "tasks": {
-    "dev": "deno run -A --unstable https://deno.land/x/aleph@1.0.0-beta.43/dev.ts",
+    "dev": "deno run -A https://deno.land/x/aleph@1.0.0-beta.44/dev.ts ./server.ts --unstable",
     "start": "deno run -A --unstable server.ts",
     "build": "deno run -A --unstable server.ts --build",
     "esm:add": "deno run -A https://esm.sh/v126 add",

@@ -8,6 +8,7 @@ import * as $3 from "./todos.tsx";
 import * as $4 from "./index.tsx";
 import * as $5 from "./blog.tsx";
 import * as $6 from "./blogs/[blog].tsx";
+import * as $7 from "./images/[image].tsx";
 
 export default {
   "/_404": $0,
@@ -17,4 +18,5 @@ export default {
   "/": $4,
   "/blog": $5,
   "/blogs/:blog": $6,
+  "/images/:image": $7,
 };
