@@ -10,6 +10,9 @@ import { createCookieSessionStorage } from "remix-deno";
 import { load } from "dotenv";
 
 const env = await load();
+if (env) {
+	Deno.env.set("SESSION_SECRET", env.SESSION_SECRET);
+}
 
 export const user_key = "user_id";
 
@@ -19,7 +22,7 @@ export const { getSession, commitSession, destroySession } =
 			name: "__session",
 			maxAge: 60 * 60 * 24 * 365,
 			sameSite: "lax",
-			secrets: [env.SESSION_SECRET],
+			secrets: [Deno.env.get("SESSION_SECRET")],
 			secure: false,
 		},
 	});
