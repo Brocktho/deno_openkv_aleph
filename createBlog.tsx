@@ -2,11 +2,11 @@
 
 import { Head } from "aleph/react";
 import Card from "~/components/Cards/index.tsx";
-import Button from "../components/Button/index.tsx";
-import { InvalidMethod } from "../ResponseHelpers.ts";
-import { RequireFormModel } from "../FormHelpers/FormValues.ts";
-import { BlogKey, BlogModel } from "../models/Blogs.ts";
-import { json, redirecting, useTypedData } from "../AlephRequest.ts";
+import Button from "./components/Button/index.js";
+import { InvalidMethod } from "./ResponseHelpers.js";
+import { RequireFormModel } from "./FormHelpers/FormValues.js";
+import { BlogKey, BlogModel } from "./models/Blogs.js";
+import { json, redirecting, useTypedData } from "./AlephRequest.js";
 
 export async function mutation(req: Request): Promise<Response> {
 	const method = req.method;
@@ -24,14 +24,14 @@ const CreateBlogRoute = () => {
 	return (
 		<div className="mt-3 w-full flex flex-col items-center">
 			<Head>
-				<title> New Blog! </title>
+				<title>New Blog!</title>
 			</Head>
 			<Card
 				component="form"
 				method="POST"
 				action="/createBlog"
 				className="rounded-xl shadow-xl w-1/2 gap-3 min-w-[20rem] max-w-xl bg-slate-300 p-3 flex flex-col items-center">
-				<h1> Create A Blog Post </h1>
+				<h1>Create A Blog Post</h1>
 				<input
 					className="bg-transparent"
 					type="text"

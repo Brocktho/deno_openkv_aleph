@@ -1,6 +1,6 @@
 /** @format */
 
-import React from "react";
+import React from "preact";
 
 export type MaterialWindThemeContext = "";
 

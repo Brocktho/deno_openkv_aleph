@@ -1,6 +1,6 @@
 /** @format */
 
-import React from "react";
+import React from "preact";
 
 /**
  * [Thanks Kent!](https://github.com/kentcdodds/kentcdodds.com/blob/c03e2cccd1a80003064af21e9dbe251370a41229/app/utils/misc.tsx#LL296C10-L296C52)

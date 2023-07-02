@@ -1,6 +1,5 @@
 /** @format */
 
-import { Link } from "https://deno.land/x/aleph@1.0.0-beta.43/framework/react/link.ts";
 import Card from "./Cards/index.tsx";
 import H1 from "./H1.tsx";
 
@@ -22,8 +21,8 @@ const BlogPostCard = ({
 	return (
 		<Card
 			clsxs={{ w: "min-w-[8rem] max-w-md w-full" }}
-			component={Link}
-			to={`/blogs/${id}`}
+			component={"a"}
+			href={`/blogs/${id}`}
 			interactable>
 			<div className="w-full flex flex-row items-center justify-center min-h-[5rem] h-full max-h-[8rem]">
 				{image ? (

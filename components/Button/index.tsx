@@ -1,32 +1,33 @@
 /** @format */
 
 import clsx from "clsx";
-import React, { createElement, forwardRef, useRef } from "react";
+import { createElement } from "preact";
+import { forwardRef, ReactNode, ElementType, Ref } from "preact/compat";
 
 import {
 	type ClassOptions,
 	CreateClasses,
 	CreateConditionalClass,
-} from "~/StyleHelpers.ts";
-import { BubbleStyles } from "~/components/Accents/Bubble.tsx";
+} from "../../StyleHelpers.ts";
+import { BubbleStyles } from "../Accents/Bubble.tsx";
 import type {
 	DefaultOverridableProps,
 	OverridableProps,
 } from "../utils/OverridableComponents.ts";
-import { useButton, useFocusRing } from "react-aria";
-import useForkRef from "~/components/Hooks/useForkRef.tsx";
 
-export interface DefaultButtonProps<D extends React.ElementType = "button">
+export interface DefaultButtonProps<D extends ElementType = "button">
 	extends DefaultOverridableProps<D> {
 	active?: boolean;
 	clsxs?: ClassOptions;
 	disabled?: boolean;
 	variant?: ButtonVariants;
-	children?: React.ReactNode;
+	children?: ReactNode;
 }
 
-export type ButtonProps<D extends React.ElementType = "button"> =
-	OverridableProps<D, DefaultButtonProps<D>>;
+export type ButtonProps<D extends ElementType = "button"> = OverridableProps<
+	D,
+	DefaultButtonProps<D>
+>;
 
 export const BaseButtonClsxs: ClassOptions = {
 	h: "h-10",
@@ -162,8 +163,8 @@ const Variants: Record<
 //export const CanDisable = ["button", "fieldset", "select"];
 
 export const Button = forwardRef(function Button<
-	D extends React.ElementType = "button"
->(props: ButtonProps<D>, ref: React.Ref<Element>) {
+	D extends ElementType = "button"
+>(props: ButtonProps<D>, ref: Ref<Element>) {
 	const {
 		component = "button",
 		children,

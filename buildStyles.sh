@@ -1,1 +1,1 @@
-deno run -A --unstable npm:tailwindcss -i ./theme.css -o ./builtTheme.css
+deno run -A --unstable npm:tailwindcss -i ./theme.css -o ./static/styles.css

@@ -1,6 +1,6 @@
 /** @format */
 
-import { ReactNode } from "react";
+import { ReactNode } from "preact";
 import { ClassOptions, CreateClasses } from "../StyleHelpers.ts";
 import { clsx } from "https://esm.sh/clsx@1.2.1";
 

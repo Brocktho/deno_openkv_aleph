@@ -1,7 +1,7 @@
 /** @format */
 
 import clsx from "clsx";
-import React, { useRef } from "react";
+import React, { useRef } from "preact";
 import {
 	type ClassOptions,
 	CreateClasses,

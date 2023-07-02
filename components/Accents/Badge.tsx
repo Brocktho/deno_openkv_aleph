@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "preact";
 import type { ClassOptions } from "~/StyleHelpers";
 
 export interface BadgeProps extends React.HtmlHTMLAttributes<HTMLLabelElement> {

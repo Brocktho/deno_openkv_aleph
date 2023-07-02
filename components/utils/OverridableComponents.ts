@@ -1,6 +1,6 @@
 /** @format */
 
-import type * as React from "react";
+import type * as React from "preact";
 declare module "react" {
 	function forwardRef<T, P = {}>(
 		render: (props: P, ref: React.Ref<T>) => React.ReactElement | null

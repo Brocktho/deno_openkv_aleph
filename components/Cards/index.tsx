@@ -1,7 +1,8 @@
 /** @format */
 
 import clsx from "clsx";
-import React, { createElement, forwardRef } from "react";
+import { createElement } from "preact";
+import { forwardRef } from "preact/compat";
 
 import {
 	type ClassOptions,

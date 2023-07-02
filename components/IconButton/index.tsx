@@ -1,6 +1,6 @@
 /** @format */
 
-import type { ReactNode } from "react";
+import type { ReactNode } from "preact";
 import type {
 	DefaultOverridableProps,
 	OverridableProps,

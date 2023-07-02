@@ -1,6 +1,6 @@
 /** @format */
 
-import { useEffect } from "react";
+import { useEffect } from "preact";
 
 export const useTab = (onTab: (e: KeyboardEvent) => any) => {
 	useEffect(() => {
