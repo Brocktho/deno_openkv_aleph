@@ -21,7 +21,9 @@
     "dotenv": "https://deno.land/std@0.192.0/dotenv/mod.ts",
     "zod": "https://esm.sh/zod@3.21.4",
     "react-aria": "https://esm.sh/react-aria@3.25.0",
-    "clsx": "https://esm.sh/clsx@1.2.1"
+    "clsx": "https://esm.sh/clsx@1.2.1",
+    "ulid": "https://esm.sh/ulid@2.3.0",
+    "cron": "https://deno.land/x/croner@5.1.0/src/croner.js"
   },
   "scopes": {}
 }

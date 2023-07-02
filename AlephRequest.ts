@@ -6,18 +6,24 @@ import { serialize, deserialize } from "superjson";
 import { useData } from "https://deno.land/x/aleph@1.0.0-beta.43/framework/react/data.ts";
 import { UpdateStrategy } from "https://deno.land/x/aleph@1.0.0-beta.43/framework/react/context.ts";
 import { JsonValue } from "std/jsonc/parse.ts";
-
 export type JsonResponse<T extends unknown = unknown> = Response & {
 	json(): Promise<T>;
 };
 
 type AppData = any;
 type DataFunction = (...args: any[]) => unknown;
-type DataOrFunction = AppData | DataFunction;
+type FetchFunction = {
+	fetch: (...args: any[]) => unknown;
+};
+type DataOrFunction = AppData | DataFunction | FetchFunction;
 
-export type GetTypedDataResponse<T extends DataOrFunction> = T extends (
-	...args: any[]
-) => infer Output
+export type GetTypedDataResponse<T extends DataOrFunction> = T extends {
+	fetch: (...args: any[]) => infer AwaitOut;
+}
+	? Awaited<AwaitOut> extends JsonResponse<infer U>
+		? U
+		: Awaited<ReturnType<T["fetch"]>>
+	: T extends (...args: any[]) => infer Output
 	? Awaited<Output> extends JsonResponse<infer U>
 		? U
 		: Awaited<ReturnType<T>>

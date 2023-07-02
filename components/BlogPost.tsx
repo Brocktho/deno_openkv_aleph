@@ -41,6 +41,7 @@ const BlogPostCard = ({
 					: description}
 			</p>
 			<time
+				suppressHydrationWarning
 				dateTime={
 					created_at instanceof Date
 						? created_at.toLocaleDateString()

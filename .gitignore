@@ -3,6 +3,8 @@
 *.swp
 .env
 
+/.react-email
+
 /.cargo_home/
 /.idea/
 /.vs/
