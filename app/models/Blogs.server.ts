@@ -4,6 +4,7 @@ import { z } from "zod";
 import { ulid } from "ulid";
 
 import db from "../db.server.ts";
+import { GenerateDate } from "../Helpers/Zod.ts";
 export const BlogKey = "blog" as const;
 export const BlogTitleIndex = "blog_by_title" as const;
 export const BlogUpdateIndex = "blog_by_updated" as const;
@@ -20,22 +21,22 @@ export const LegacyBlogModel = z.object({
 });
 
 export const BlogModel = z.object({
-	id: z.string().default(ulid()),
+	id: z.string().ulid().default(ulid),
 	title: z.string().min(1).max(191),
 	content: z.string().min(1),
-	created_at: z.date().default(new Date()),
-	updated_at: z.date().default(new Date()),
+	created_at: z.date().default(GenerateDate),
+	updated_at: z.date().default(GenerateDate),
 });
 
 export const UpdateBlogModel = z.object({
-	id: z.string().ulid().default("Invalid"),
+	id: z.string().ulid(),
 	title: z.string().min(1).max(191),
 	content: z.string().min(1),
-	updated_at: z.date().default(new Date()),
+	updated_at: z.date().default(GenerateDate),
 });
 
 export const DeleteBlogModel = z.object({
-	id: z.string().ulid().default("Invalid"),
+	id: z.string().ulid(),
 });
 
 export const BlogsModel = z.array(BlogModel).default([]);
@@ -70,7 +71,6 @@ export const CreateBlog = async (blog: Blog) => {
 			.commit();
 	});
 
-	console.log(response);
 	if (!response.ok) {
 		throw new Error(
 			"Unable to create blog. One already exists with given keys."
@@ -109,12 +109,10 @@ export const GetBlogs = async () => {
 				});
 			} catch (e) {
 				// This should hopefully not happen.
-				console.log("Error Parsing Blog");
 				console.error(e);
 			}
 		}
 	}
-	console.log(blogs);
 	return blogs;
 	// Will use below when all blogs are updated.
 	//return db.requireList([{ prefix: [BlogKey] }], BlogsModel);

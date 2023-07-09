@@ -7,7 +7,7 @@ import H1 from "../components/H1.tsx";
 //import type { LoaderArgs } from "@remix-run/server-runtime";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import { Outlet } from "@remix-run/react";
-import { useRouteError } from "@remix-run/react";
+import GenericError from "../Helpers/Errors.tsx";
 
 export const loader = async () => {
 	const blog_posts = await GetBlogs();
@@ -54,9 +54,7 @@ const BlogRoute = () => {
 };
 
 export const ErrorBoundary = () => {
-	const error = useRouteError();
-	console.log(error);
-	return <div>Uh oh...</div>;
+	return <GenericError />;
 };
 
 export default BlogRoute;

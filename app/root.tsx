@@ -15,6 +15,7 @@ import * as React from "react";
 import tailwind from "./theme.css";
 import Header from "./components/Header.tsx";
 import Keywords from "./Keywords.ts";
+import GenericError from "./Helpers/Errors.tsx";
 
 export const meta: V2_MetaFunction = () => [
 	{ name: "keywords", content: Keywords },
@@ -51,3 +52,7 @@ export default function App() {
 		</html>
 	);
 }
+
+export const ErrorBoundary = () => {
+	return <GenericError />;
+};

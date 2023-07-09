@@ -16,6 +16,12 @@ import {
 import { DataFunctionArgs, redirect } from "@remix-run/deno";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 
+import Modal from "../components/Modal/index.tsx";
+import marked, { MarkdownStyles } from "../Helpers/Markdown.ts";
+import { useState } from "react";
+
+export const links = () => [MarkdownStyles];
+
 export const loader = async ({ request, params }: DataFunctionArgs) => {
 	const blog_id = params.blog_id;
 	if (blog_id) {
@@ -54,34 +60,71 @@ export const action = async ({ request }: DataFunctionArgs) => {
 
 const CreateBlogRoute = () => {
 	const { blog } = useTypedLoaderData<typeof loader>();
-
+	const [preview, setPreview] = useState(false);
+	const [content, setContent] = useState(blog?.content || "");
 	return (
-		<div className="mt-3 w-full flex flex-col items-center">
-			<Card
-				component="form"
-				method="POST"
-				className="rounded-xl shadow-xl w-1/2 gap-3 min-w-[20rem] max-w-xl bg-slate-300 p-3 flex flex-col items-center">
-				<h1>Create A Blog Post</h1>
-				<input
-					className="bg-transparent"
-					type="text"
-					name="title"
-					placeholder="Title"
-				/>
+		<Modal
+			open={true}
+			component="form"
+			card={{
+				method: "POST",
+				clsxs: {
+					p: "p-3",
+					w: "max-w-2xl w-full min-w-[20rem]",
+				},
+			}}>
+			<h1>Create A Blog Post</h1>
+			<input
+				className="bg-transparent"
+				type="text"
+				name="title"
+				placeholder="Title"
+			/>
+			<div className="flex flex-row items-center flex-wrap gap-3">
+				<Button
+					variant="text"
+					disabled={!preview}
+					onClick={e => {
+						e.preventDefault();
+						setPreview(false);
+					}}>
+					{preview ? "Edit" : "Editing"}
+				</Button>
+				<Button
+					variant="text"
+					disabled={preview}
+					onClick={e => {
+						e.preventDefault();
+						setPreview(true);
+					}}>
+					{preview ? "Previewing" : "Preview"}
+				</Button>
+			</div>
+			{!preview ? (
 				<textarea
 					className="resize-none bg-transparent"
 					name="content"
 					placeholder="Content"
 					rows={3}
+					value={content}
+					onChange={e => {
+						setContent(e.target.value);
+					}}
 				/>
-				<Button
-					variant="outlined"
-					name="method"
-					value={blog ? "patch" : "post"}>
-					Submit
-				</Button>
-			</Card>
-		</div>
+			) : (
+				<p
+					dangerouslySetInnerHTML={{
+						__html: marked(content),
+					}}
+				/>
+			)}
+			<Button
+				variant="outlined"
+				name="method"
+				value={blog ? "patch" : "post"}>
+				Submit
+			</Button>
+		</Modal>
 	);
 };
 
