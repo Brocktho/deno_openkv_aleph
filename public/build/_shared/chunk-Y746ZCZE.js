@@ -1,0 +1,1 @@
+import{a as t,d as o}from"/build/_shared/chunk-UEW5GJXA.js";import{b as e}from"/build/_shared/chunk-GDLBX7ER.js";import{c as s}from"/build/_shared/chunk-Q3IECNXJ.js";var a=s(e()),i={text_size:"text-xl",w:"w-full",color:""},p=l=>{let{clsxs:x,children:c,className:r,...n}=l;return(0,a.jsx)("h1",{...n,className:t(o(i,{}),r),children:c})},H=p;export{H as a};

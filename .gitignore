@@ -3,12 +3,12 @@
 *.swp
 .env
 
-/.react-email
+node_modules/
+/.cache
 
 /.cargo_home/
 /.idea/
 /.vs/
-/.vscode/
 gclient_config.py_entries
 /target/
 /std/hash/_wasm/target
