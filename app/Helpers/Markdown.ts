@@ -3,6 +3,8 @@
 import { marked } from "marked";
 import { markedHighlight } from "marked-highlight";
 import hljs from "highlight.js";
+//@ts-ignore - This is a correct import
+import Retro from "../retro.css";
 
 marked.use(
 	markedHighlight({
@@ -14,9 +16,15 @@ marked.use(
 	})
 );
 
-export const MarkdownStyles = {
-	rel: "stylesheet",
-	href: "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css",
-};
+export const MarkdownStyles = [
+	{
+		rel: "stylesheet",
+		href: "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css",
+	},
+	{
+		rel: "stylesheet",
+		href: Retro,
+	},
+];
 
 export default marked;

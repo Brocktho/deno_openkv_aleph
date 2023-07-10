@@ -20,7 +20,7 @@ import Modal from "../components/Modal/index.tsx";
 import marked, { MarkdownStyles } from "../Helpers/Markdown.ts";
 import { useState } from "react";
 
-export const links = () => [MarkdownStyles];
+export const links = () => MarkdownStyles;
 
 export const loader = async ({ request, params }: DataFunctionArgs) => {
 	const blog_id = params.blog_id;
@@ -100,6 +100,9 @@ const CreateBlogRoute = () => {
 					{preview ? "Previewing" : "Preview"}
 				</Button>
 			</div>
+			<ul>
+				<li>item</li>
+			</ul>
 			{!preview ? (
 				<textarea
 					className="resize-none bg-transparent"
@@ -116,6 +119,7 @@ const CreateBlogRoute = () => {
 					dangerouslySetInnerHTML={{
 						__html: marked(content),
 					}}
+					className="markdown"
 				/>
 			)}
 			<Button

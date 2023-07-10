@@ -9,7 +9,7 @@ import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import marked, { MarkdownStyles } from "../Helpers/Markdown.ts";
 import GenericError from "../Helpers/Errors.tsx";
 
-export const links = () => [MarkdownStyles];
+export const links = () => MarkdownStyles;
 
 export const loader = async ({ params }: LoaderArgs) => {
 	try {
@@ -30,7 +30,7 @@ export default function ViewBlogRoute() {
 				<Card clsxs={{ w: "w-full max-w-xl" }}>
 					<H1 className="w-full text-xl">{blog.title}</H1>
 					<p
-						className="w-full"
+						className="w-full markdown"
 						dangerouslySetInnerHTML={{
 							__html: blog.content,
 						}}

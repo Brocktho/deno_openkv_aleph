@@ -256,4 +256,7 @@
     --md-sys-typescale-title-small-line-height: 20px;
     --md-sys-typescale-title-small-letter-spacing: 0.10px;
 }
+html {
+    font-family: "Courier New";
+}
 }
