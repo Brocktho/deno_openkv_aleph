@@ -256,7 +256,9 @@ function createRuntime({
 				const ensureRouteModule = async () => {
 					if (ensurePromise) return ensurePromise;
 					if (typeof routeModule !== "undefined") return;
-					routeModule = await import(route.file + "?ts=" + timestamp);
+					routeModule = await import(
+						route.file.replace("file://", "") + "?ts=" + timestamp
+					);
 					routeModules.set(route.id, routeModule!);
 				};
 				initializationTasks.push((ensurePromise = ensureRouteModule()));
