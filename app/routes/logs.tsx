@@ -1,5 +1,5 @@
 /** @format */
-
+import * as React from "react";
 //import { typedjson, useTypedLoaderData } from "remix-typedjson";
 
 /* export const loader = () => {
@@ -15,17 +15,19 @@
 }; */
 
 const LogsRoute = () => {
-	//const { route_list } = useTypedLoaderData<typeof loader>();
-	return (
-		<div className="w-full flex flex-col items-center gap-3">
-			{/* 			{route_list.map((route, i) => {
+  //const { route_list } = useTypedLoaderData<typeof loader>();
+  return (
+    <div className="w-full flex flex-col items-center gap-3">
+      {
+        /* 			{route_list.map((route, i) => {
 				return <a href={`/logs/${route}`}>{route}</a>;
-			})} */}
-			<a href="/logs/time">time</a>
-			<a href="/logs/route">route</a>
-			<a href="/logs/visitors">visitors</a>
-		</div>
-	);
+			})} */
+      }
+      <a href="/logs/time">time</a>
+      <a href="/logs/route">route</a>
+      <a href="/logs/visitors">visitors</a>
+    </div>
+  );
 };
 
 export default LogsRoute;

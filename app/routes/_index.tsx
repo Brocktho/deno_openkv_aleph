@@ -1,9 +1,9 @@
 /** @format */
 
+import { V2_ServerRuntimeMetaFunction } from "@remix-run/deno";
 import * as React from "react";
-import type { V2_MetaFunction } from "@remix-run/deno";
 
-export const meta: V2_MetaFunction = () => {
+export const meta: V2_ServerRuntimeMetaFunction = () => {
   return [
     { title: "Brocktho" },
     { name: "description", content: "Welcome to my Portfolio Site!" },
