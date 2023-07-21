@@ -114,7 +114,7 @@ const CreateBlogRoute = () => {
 					}}
 				/>
 			) : (
-				<p
+				<article
 					dangerouslySetInnerHTML={{
 						__html: marked(content),
 					}}

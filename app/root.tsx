@@ -33,6 +33,7 @@ export default function App() {
 				<meta name="author" content="Brock Donahue" />
 				<Meta />
 				<link rel="stylesheet" href="/theme.css" />
+				<link rel="stylesheet" href="/retro.css" />
 			</head>
 			<body>
 				<Header />

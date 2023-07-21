@@ -29,7 +29,7 @@ export default function ViewBlogRoute() {
 			{blog && (
 				<Card clsxs={{ w: "w-full max-w-xl" }}>
 					<H1 className="w-full text-xl">{blog.title}</H1>
-					<p
+					<article
 						className="w-full markdown"
 						dangerouslySetInnerHTML={{
 							__html: blog.content,
