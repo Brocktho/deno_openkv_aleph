@@ -9,41 +9,34 @@ import { contentType } from "https://deno.land/std@0.192.0/media_types/mod.ts";
 import { createHash } from "node:crypto";
 import { LRU } from "https://deno.land/x/lru@1.0.2/mod.ts";
 import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.8.1/mod.ts";
-import { load } from "https://deno.land/std@0.192.0/dotenv/mod.ts";
 import { RequireSecret } from "./app/Helpers/Secrets.ts";
-
-import { createRequestHandler as createRemixRequestHandler } from "https://esm.sh/@remix-run/deno@1.18.1";
-
+import { createRequestHandlerWithStaticFiles } from "https://esm.sh/@remix-run/deno@1.18.1";
+import { serve } from "https://deno.land/std@0.192.0/http/server.ts";
+import * as build from "./remix.gen.ts";
 import {
 	esbuild,
 	ensureEsbuildInitialized,
 	type esbuildWasm,
 } from "./esbuild.ts";
-import * as assets from "./assets.ts";
+import NoTrailing from "./Middlewares/noTrailing.ts";
+import { SendLog } from "~/models/Logging.server.ts";
+import { load } from "https://deno.land/std@0.192.0/dotenv/mod.ts";
+import { DataFunctionArgs, ServerBuild } from "@remix-run/server-runtime";
 
+await load();
 interface CommonOptions {
 	port?: number;
-	browserImportMapPath: string;
 	appDirectory?: string;
 	staticDirectory?: string;
 	assetsDirectory?: string;
 	generatedFile?: string;
-	manifest?: unknown;
+	manifest?: ServerBuild;
 	getLoadContext?: (request: Request) => Promise<any>;
 }
 
 interface CreateRequestHandlerArgs extends CommonOptions {
 	generatedFile?: string;
 	mode?: "production" | "development";
-	emitDevEvent?: (event: unknown) => void;
-}
-
-if (Deno.env.get("ENV") !== "production") {
-	await load().then(env => {
-		Object.keys(env).forEach(key => {
-			Deno.env.set(key, env[key]);
-		});
-	});
 }
 
 declare global {
@@ -54,113 +47,52 @@ declare global {
 window.APP_URL = RequireSecret("APP_URL");
 window.LOG_URL = RequireSecret("LOG_URL");
 
-export function createRequestHandler({
+export async function createRequestHandler({
 	appDirectory = path.resolve(Deno.cwd(), "app"),
 	assetsDirectory = path.resolve(Deno.cwd(), "assets"),
 	generatedFile = path.resolve(Deno.cwd(), "remix.gen.ts"),
-	browserImportMapPath,
 	staticDirectory = path.resolve(Deno.cwd(), "public"),
 	manifest,
 	mode = "production",
 	getLoadContext,
-	emitDevEvent,
 }: CreateRequestHandlerArgs) {
 	appDirectory = path.resolve(appDirectory);
 	staticDirectory = path.resolve(staticDirectory);
 	generatedFile = path.resolve(generatedFile);
-
 	const runtime = createRuntime({
 		appDirectory,
 		assetsDirectory,
 		manifest,
 		generatedFile,
-		browserImportMapPath,
 		mode,
-		emitDevEvent,
 	});
 
-	runtime
+	await runtime
 		.loadBuild()
 		.then(() =>
 			runtime.checksum
 				? runtime.ensureCompilation({ checksum: runtime.checksum })
 				: void 0
 		);
-
-	return async (request: Request): Promise<Response> => {
-		const url = new URL(request.url);
-
-		if (assets.assets.has(url.pathname)) {
-			const content = await assets.assets.get(url.pathname)!.content;
-			const contentTypeHeader = contentType(
-				url.pathname.split(".").slice(-1)[0]
-			);
-			return new Response(content, {
-				status: 200,
-				headers: contentTypeHeader
-					? {
-							"Content-Type": contentTypeHeader,
-							"Cache-Control":
-								"public, max-age=31536000, immutable",
-					  }
-					: undefined,
-			});
-		}
-
-		// Serve static files
-		const staticPath = path.join(staticDirectory, url.pathname);
-		try {
-			const stat = await Deno.stat(staticPath);
-			if (stat.isFile) {
-				const contentTypeHeader = contentType(
-					url.pathname.split(".").slice(-1)[0]
-				);
-
-				return new Response(await Deno.readFile(staticPath), {
-					headers: contentTypeHeader
-						? {
-								"Content-Type": contentTypeHeader,
-								"Cache-Control":
-									"public, max-age=31536000, immutable",
-						  }
-						: undefined,
-				});
-			}
-		} catch {
-			// do nothing
-		}
-
-		const assetsResponse = await runtime.serveAssets(url);
-		if (assetsResponse) {
-			return assetsResponse;
-		}
-
-		const remixRequestHandler = createRemixRequestHandler({
-			mode,
-			getLoadContext,
-			build: await runtime.loadBuild(),
-		});
-
-		return await remixRequestHandler(request);
-	};
+	return createRequestHandlerWithStaticFiles({
+		build: await runtime.loadBuild(),
+		mode,
+		getLoadContext,
+	});
 }
 
 function createRuntime({
 	appDirectory,
 	assetsDirectory,
-	generatedFile,
-	browserImportMapPath,
 	mode,
+	generatedFile,
 	manifest,
-	emitDevEvent,
 }: {
 	appDirectory: string;
 	assetsDirectory?: string;
-	browserImportMapPath: string;
 	mode: "production" | "development";
 	generatedFile?: string;
-	manifest?: unknown;
-	emitDevEvent?: (event: unknown) => void;
+	manifest?: ServerBuild;
 }) {
 	appDirectory = path.resolve(appDirectory);
 	assetsDirectory = assetsDirectory
@@ -170,7 +102,7 @@ function createRuntime({
 	const assetsLRU = new LRU<string>(500);
 
 	let lastBuildChecksum: string | undefined;
-	let lastBuild: any | undefined;
+	let lastBuild: ServerBuild | undefined;
 	let lastBuildTime = 0;
 	let lastClientBuildTime = 0;
 	let lastModifiedTime = 0;
@@ -189,7 +121,6 @@ function createRuntime({
 			for await (const event of watcher) {
 				if (["create", "modify", "remove"].includes(event.kind)) {
 					lastModifiedTime = Date.now();
-					if (emitDevEvent) emitDevEvent({ type: "RELOAD" });
 				}
 			}
 		})();
@@ -204,7 +135,7 @@ function createRuntime({
 			return lastBuild;
 		}
 
-		const checksum = await buildChecksum({ appDirectory, assetsDirectory });
+		const checksum = buildChecksum({ appDirectory, assetsDirectory });
 
 		if (mode === "production") {
 			const newBuild =
@@ -213,7 +144,6 @@ function createRuntime({
 					: undefined) || (await import(generatedFile!));
 			lastBuildTime = timestamp;
 			lastBuild = newBuild;
-			lastBuildChecksum = newBuild.assets.version;
 			lastRoutes = new Map(
 				Object.values(
 					newBuild.routes as Record<
@@ -271,24 +201,24 @@ function createRuntime({
 						index: route.index,
 						parentId: route.parentId,
 						module: {
-							action: async (...args) => {
+							action: async (args: DataFunctionArgs) => {
 								await ensureRouteModule();
 								return (
 									(
 										routeModule!.action as (
-											...args: unknown[]
+											args: DataFunctionArgs
 										) => unknown
-									)?.(...args) || null
+									)?.(args) || null
 								);
 							},
-							loader: async (...args) => {
+							loader: async (args: DataFunctionArgs) => {
 								await ensureRouteModule();
 								return (
 									(
 										routeModule!.loader as (
-											...args: unknown[]
+											args: DataFunctionArgs
 										) => unknown
-									)?.(...args) || null
+									)?.(args) || null
 								);
 							},
 							get CatchBoundary() {
@@ -314,8 +244,8 @@ function createRuntime({
 							},
 						},
 					},
-				} as any["routes"];
-			}, {} as any["routes"]),
+				} as ServerBuild["routes"];
+			}, {} as ServerBuild["routes"]),
 			publicPath: `/${checksum}/`,
 			assetsBuildDirectory: "",
 			assets: {
@@ -374,22 +304,22 @@ function createRuntime({
 		return newBuild;
 	};
 
-	function createBuildFromManifest(checksum: string, manifest: unknown) {
-		const any = manifest as any;
+	function createBuildFromManifest(checksum: string, manifest: ServerBuild) {
+		const build = manifest;
 		return {
-			entry: any.entry,
-			routes: any.routes,
+			entry: build.entry,
+			routes: build.routes,
 			publicPath: `/${checksum}/`,
 			assetsBuildDirectory: "",
 			assets: {
-				...any.assets,
+				...build.assets,
 				url: `/${checksum}/manifest.js`,
 				version: checksum,
 				entry: {
 					imports: [],
-					module: `/${checksum}${any.assets.entry.module}`,
+					module: `/${checksum}${build.assets.entry.module}`,
 				},
-				routes: Object.values(any.assets.routes).reduce(
+				routes: Object.values(build.assets.routes).reduce(
 					(acc, route) => {
 						return {
 							...acc,
@@ -402,14 +332,12 @@ function createRuntime({
 					{}
 				),
 			},
-			future: any.future,
+			future: build.future,
 		};
 	}
 
 	async function ensureCompilation({ checksum }: { checksum: string }) {
-		checksum =
-			checksum ||
-			(await buildChecksum({ appDirectory, assetsDirectory }));
+		checksum = checksum || buildChecksum({ appDirectory, assetsDirectory });
 		const getPlugins = () => {
 			const browserRouteModulesPlugin = {
 				name: "browser-route-modules",
@@ -418,7 +346,7 @@ function createRuntime({
 						const file = args.path.replace(/\?route$/, "");
 						if (lastRoutes!.has(file)) {
 							return {
-								path: path.toFileUrl(args.path).href,
+								path: file,
 								namespace: "browser-route-modules",
 								sideEffects: false,
 								pluginData: { file },
@@ -429,9 +357,10 @@ function createRuntime({
 					build.onLoad(
 						{ filter: /.*/, namespace: "browser-route-modules" },
 						async args => {
-							const file = args.pluginData.file;
+							let file = args.pluginData.file;
 							if (file) {
 								await ensureEsbuildInitialized();
+								file = file.replace("file://", "");
 								const result = await esbuild.build({
 									absWorkingDir: Deno.cwd(),
 									minify: mode === "production",
@@ -490,7 +419,7 @@ function createRuntime({
 											", "
 										)} }`;
 										contents = `export ${spec} from ${JSON.stringify(
-											file
+											`file://${file}`
 										)};`;
 									}
 
@@ -589,7 +518,7 @@ function createRuntime({
 
 			compilationPromise = Promise.all([
 				getEntryPoints(),
-				ensureEsbuildInitialized(),
+				//ensureEsbuildInitialized(),
 			]).then(([{ entryPoints }]) =>
 				esbuild.build({
 					absWorkingDir: Deno.cwd(),
@@ -732,25 +661,24 @@ export async function loadRoutes(appDirectory: string) {
 			) {
 				continue;
 			}
-
-			const relativePath = path.relative(routesDir, entry.path);
-			const normalizedSystemSlashes = relativePath.replace(/\\/g, "/");
-			const withoutExtension = normalizedSystemSlashes.replace(
-				/\.tsx?$/,
-				""
-			);
+			let rel_path = path.relative(routesDir, entry.path);
+			rel_path = rel_path.replace(/\\/g, "/");
+			//const normalizedSystemSlashes = relativePath.replace(/\\/g, "/");
+			const withoutExtension = rel_path.replace(/\.tsx?$/, "");
 			const withSlashes = withoutExtension.replace(/\./g, "/");
 			const index =
-				withoutExtension === "index" || withSlashes.endsWith("/index");
+				withoutExtension === "_index" || withSlashes.endsWith("/index");
 			const withoutIndex = index
-				? withSlashes.replace(/\/?index$/, "")
+				? withSlashes.replace(/_?\/?index$/, "")
 				: withSlashes;
-			const withSlugs = withoutIndex.replace(/\$/g, ":");
+			const withOptionalSlug = withoutIndex
+				.replace(/\(/g, "")
+				.replace(/\)/g, "?");
+			const withSlugs = withOptionalSlug.replace(/\$/g, ":");
 			const fullPath = withSlugs
 				.split("/")
 				.map(segment => segment.replace(/_$/, ""))
 				.join("/");
-
 			entries.push({
 				id: "routes/" + withoutExtension.replace(/\./g, "/"),
 				index,
@@ -779,25 +707,20 @@ export async function loadRoutes(appDirectory: string) {
 				parentId: findParentId(entry.id),
 			};
 		}
-	} catch (e) {
-		console.log(e);
+	} catch {
 		// do nothing
 	}
-
-	function cleanUpPath(route: (typeof routes)[string]) {
-		route.file = `file://${route.file}`;
+	function cleanUpPath(route: { parentId?: string; path?: string }) {
 		if (route.parentId && route.path && routes[route.parentId].path) {
-			route.path = route.path
-				.slice(-routes[route.parentId].path!.length - 1)
-				.replace(/^\//, "")
-				.replace(/\/$/, "");
+			route.path = route.path.slice(
+				routes[route.parentId].path!.length + 1
+			);
 		}
 	}
 
 	for (const route of Object.values(routes)) {
 		cleanUpPath(route);
 	}
-
 	return routes;
 }
 
@@ -830,8 +753,7 @@ export function buildChecksum({
 			hash.update(file);
 		}
 	}
-
-	return hash.toString();
+	return hash.digest("base64");
 }
 
 async function findFileWithExt(baseName: string, exts: string[]) {
@@ -856,7 +778,7 @@ const browserSafeRouteExports: { [name: string]: boolean } = {
 	handle: true,
 	links: true,
 	meta: true,
-	unstable_shouldReload: true,
+	shouldRevalidate: true,
 };
 
 export async function writeGeneratedFile({
@@ -891,7 +813,13 @@ export async function writeGeneratedFile({
 		.map(
 			(route, index) =>
 				`import * as route${index} from ${JSON.stringify(
-					route.file.replace("file://", "").replace(/\\/g, "/")
+					"./" +
+						path.relative(
+							path.dirname(generatedFile),
+							path
+								.resolve(route.file.replace("file://", ""))
+								.replace(/\\/g, "/")
+						)
 				)};`
 		)
 		.join("\n");
@@ -969,7 +897,14 @@ export const assets = {
   entry: { imports: [], module: ${JSON.stringify(`/entry.client.js`)} },
   routes: ${assetRoutes},
 };
-export const future = {};
+export const future = {
+    v2_errorBoundary: true,
+    v2_headers: true,
+    v2_meta: true,
+    v2_normalizeFormMethod: true,
+    v2_routeConvention: true,
+    v2_dev: true,
+};
 `
 	);
 }
@@ -983,74 +918,28 @@ export async function dev({
 	port = defaultPort,
 	...options
 }: CommonOptions) {
-	assets.settings.assetsDirectory = assetsDirectory
-		? path.resolve(assetsDirectory || path.resolve(Deno.cwd(), "assets"))
-		: undefined;
-	assets.settings.getChecksum = () =>
-		buildChecksum({
-			appDirectory: path.resolve(
-				options.appDirectory || path.resolve(Deno.cwd(), "app")
-			),
-			assetsDirectory: assets.settings.assetsDirectory,
-		});
-
 	const mode = "development";
-	window.location = { port: port.toString() } as Window["location"];
 
-	const sockets = new Set<WebSocket>();
-
-	const handler = createRequestHandler({
+	const handler = await createRequestHandler({
 		...options,
 		assetsDirectory,
 		mode,
 		generatedFile,
-		emitDevEvent: event => {
-			for (const socket of sockets) {
-				socket.send(JSON.stringify(event));
-			}
-		},
 	});
-
-	const server = Deno.listen({ port });
-	console.log(`Listening on http://localhost:${port}`);
-
-	for await (const conn of server) {
-		(async () => {
-			const httpConn = Deno.serveHttp(conn);
-			for await (const requestEvent of httpConn) {
-				const url = new URL(requestEvent.request.url);
-				if (mode === "development" && url.pathname === "/socket") {
-					const { socket, response } = Deno.upgradeWebSocket(
-						requestEvent.request
-					);
-					sockets.add(socket);
-					socket.onclose = () => {
-						sockets.delete(socket);
-					};
-					socket.onerror = () => {
-						sockets.delete(socket);
-					};
-					return await requestEvent
-						.respondWith(response)
-						.catch(() => {});
-				}
-
-				try {
-					const response = await handler(requestEvent.request);
-					requestEvent.respondWith(response).catch(() => {});
-				} catch (error) {
-					console.error(error);
-					requestEvent
-						.respondWith(
-							new Response(error.message, {
-								status: 500,
-							})
-						)
-						.catch(() => {});
-				}
-			}
-		})();
-	}
+	serve(
+		async (req, connInfo) => {
+			const start = Date.now();
+			//const isLog = await Logging(req);
+			//if (isLog) return isLog;
+			const redirect = NoTrailing(req);
+			if (redirect) return redirect;
+			const resp = handler(req);
+			console.log(`${req.method} ${req.url} ${Date.now() - start}ms`);
+			await SendLog(start, req, connInfo);
+			return resp;
+		},
+		{ port }
+	);
 }
 
 export async function start({
@@ -1059,48 +948,26 @@ export async function start({
 	assetsDirectory = path.resolve(Deno.cwd(), "assets"),
 	...options
 }: CommonOptions) {
-	assets.settings.assetsDirectory = path.resolve(
-		assetsDirectory || path.resolve(Deno.cwd(), "assets")
-	);
-	assets.settings.getChecksum = () =>
-		buildChecksum({
-			appDirectory: path.resolve(
-				options.appDirectory || path.resolve(Deno.cwd(), "app")
-			),
-			assetsDirectory: assets.settings.assetsDirectory,
-		});
-
 	const mode = "production";
-	window.location = { port: port.toString() } as Window["location"];
 
-	const handler = createRequestHandler({
+	const handler = await createRequestHandler({
 		...options,
+		assetsDirectory,
 		mode,
 		generatedFile,
-		assetsDirectory,
 	});
-
-	const server = Deno.listen({ port });
-	console.log(`Listening on http://localhost:${port}`);
-
-	for await (const conn of server) {
-		(async () => {
-			const httpConn = Deno.serveHttp(conn);
-			for await (const requestEvent of httpConn) {
-				try {
-					const response = await handler(requestEvent.request);
-					requestEvent.respondWith(response).catch(() => {});
-				} catch (error) {
-					console.error(error);
-					requestEvent
-						.respondWith(
-							new Response(error.message, {
-								status: 500,
-							})
-						)
-						.catch(() => {});
-				}
-			}
-		})();
-	}
+	serve(
+		async (req, connInfo) => {
+			const start = Date.now();
+			//const isLog = await Logging(req);
+			//if (isLog) return isLog;
+			const redirect = NoTrailing(req);
+			if (redirect) return redirect;
+			const resp = handler(req);
+			console.log(`${req.method} ${req.url} ${Date.now() - start}ms`);
+			await SendLog(start, req, connInfo);
+			return resp;
+		},
+		{ port }
+	);
 }

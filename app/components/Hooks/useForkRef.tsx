@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export type RefFuncArg<T> = (args: T) => any;
+export type RefFuncArg<T> = (args: T) => unknown;
 
 /**
  * TODO v5: consider making it private
@@ -18,38 +18,38 @@ export type RefFuncArg<T> = (args: T) => any;
  * @param ref A ref callback or ref object. If anything falsy, this is a no-op.
  */
 export function setRef<T>(
-  ref:
-    | React.MutableRefObject<T | null>
-    | ((instance: T | null) => void)
-    | null
-    | undefined,
-  value: T | null,
+	ref:
+		| React.MutableRefObject<T | null>
+		| ((instance: T | null) => void)
+		| null
+		| undefined,
+	value: T | null
 ): void {
-  if (typeof ref === "function") {
-    ref(value);
-  } else if (ref) {
-    ref.current = value;
-  }
+	if (typeof ref === "function") {
+		ref(value);
+	} else if (ref) {
+		ref.current = value;
+	}
 }
 
-export default function useForkRef<Instance,>(
-  ...refs: Array<React.Ref<Instance> | undefined>
+export default function useForkRef<Instance>(
+	...refs: Array<React.Ref<Instance> | undefined>
 ): React.RefCallback<Instance> | null {
-  /**
-   * This will create a new function if the refs passed to this hook change and are all defined.
-   * This means react will call the old forkRef with `null` and the new forkRef
-   * with the ref. Cleanup naturally emerges from this behavior.
-   */
-  return React.useMemo(() => {
-    if (refs.every((ref) => ref == null)) {
-      return null;
-    }
+	/**
+	 * This will create a new function if the refs passed to this hook change and are all defined.
+	 * This means react will call the old forkRef with `null` and the new forkRef
+	 * with the ref. Cleanup naturally emerges from this behavior.
+	 */
+	return React.useMemo(() => {
+		if (refs.every(ref => ref == null)) {
+			return null;
+		}
 
-    return (instance) => {
-      refs.forEach((ref) => {
-        setRef(ref, instance);
-      });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, refs);
+		return instance => {
+			refs.forEach(ref => {
+				setRef(ref, instance);
+			});
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, refs);
 }

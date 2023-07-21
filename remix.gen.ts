@@ -3,86 +3,86 @@
 // This file is automatically updated during development when running `deno task dev`.
 
 import * as serverEntry from "./app/entry.server.tsx";
-import * as route0 from "/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/root.tsx";
-import * as route1 from "/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/blog.upsert.($blog_id).tsx";
-import * as route2 from "/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/blog_.$blog_id.tsx";
-import * as route3 from "/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/logs.visitors.ts";
-import * as route4 from "/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/logs.route.ts";
-import * as route5 from "/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/logs.time.ts";
-import * as route6 from "/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/_index.tsx";
-import * as route7 from "/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/todos.tsx";
-import * as route8 from "/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/logs.tsx";
-import * as route9 from "/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/blog.tsx";
+import * as route0 from "./app/root.tsx";
+import * as route1 from "./app/routes/blog.upsert.($blog_id).tsx";
+import * as route2 from "./app/routes/blog_.$blog_id.tsx";
+import * as route3 from "./app/routes/logs.visitors.ts";
+import * as route4 from "./app/routes/logs.route.ts";
+import * as route5 from "./app/routes/logs.time.ts";
+import * as route6 from "./app/routes/_index.tsx";
+import * as route7 from "./app/routes/todos.tsx";
+import * as route8 from "./app/routes/logs.tsx";
+import * as route9 from "./app/routes/blog.tsx";
 
 export const entry = { module: serverEntry };
 export const routes = {
 	"root": {
 		id: "root",
 		module: route0,
-		file: "./file:/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/root.tsx",
+		file: "./app/root.tsx",
 	},
 	"routes/blog/upsert/($blog_id)": {
 		id: "routes/blog/upsert/($blog_id)",
-		path: "g_id)",
+		path: "upsert/:blog_id?",
 		parentId: "routes/blog",
 		module: route1,
-		file: "./file:/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/blog.upsert.($blog_id).tsx",
+		file: "./app/routes/blog.upsert.($blog_id).tsx",
 	},
 	"routes/blog_/$blog_id": {
 		id: "routes/blog_/$blog_id",
 		path: "blog/:blog_id",
 		parentId: "root",
 		module: route2,
-		file: "./file:/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/blog_.$blog_id.tsx",
+		file: "./app/routes/blog_.$blog_id.tsx",
 	},
 	"routes/logs/visitors": {
 		id: "routes/logs/visitors",
-		path: "itors",
+		path: "visitors",
 		parentId: "routes/logs",
 		module: route3,
-		file: "./file:/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/logs.visitors.ts",
+		file: "./app/routes/logs.visitors.ts",
 	},
 	"routes/logs/route": {
 		id: "routes/logs/route",
 		path: "route",
 		parentId: "routes/logs",
 		module: route4,
-		file: "./file:/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/logs.route.ts",
+		file: "./app/routes/logs.route.ts",
 	},
 	"routes/logs/time": {
 		id: "routes/logs/time",
 		path: "time",
 		parentId: "routes/logs",
 		module: route5,
-		file: "./file:/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/logs.time.ts",
+		file: "./app/routes/logs.time.ts",
 	},
 	"routes/_index": {
 		id: "routes/_index",
-		path: "_index",
+		index: true,
 		parentId: "root",
 		module: route6,
-		file: "./file:/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/_index.tsx",
+		file: "./app/routes/_index.tsx",
 	},
 	"routes/todos": {
 		id: "routes/todos",
 		path: "todos",
 		parentId: "root",
 		module: route7,
-		file: "./file:/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/todos.tsx",
+		file: "./app/routes/todos.tsx",
 	},
 	"routes/logs": {
 		id: "routes/logs",
 		path: "logs",
 		parentId: "root",
 		module: route8,
-		file: "./file:/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/logs.tsx",
+		file: "./app/routes/logs.tsx",
 	},
 	"routes/blog": {
 		id: "routes/blog",
 		path: "blog",
 		parentId: "root",
 		module: route9,
-		file: "./file:/home/brocktho/Desktop/PersonalProjects/AlephDeno/app/routes/blog.tsx",
+		file: "./app/routes/blog.tsx",
 	},
 };
 export const assets = {
@@ -99,7 +99,7 @@ export const assets = {
 		},
 			"routes/blog/upsert/($blog_id)": {
 			id: "routes/blog/upsert/($blog_id)",
-			path: "g_id)",
+			path: "upsert/:blog_id?",
 			parentId: "routes/blog",
 			imports: [],
 			module: "/routes/blog/upsert/($blog_id).js",
@@ -121,7 +121,7 @@ export const assets = {
 		},
 			"routes/logs/visitors": {
 			id: "routes/logs/visitors",
-			path: "itors",
+			path: "visitors",
 			parentId: "routes/logs",
 			imports: [],
 			module: "/routes/logs/visitors.js",
@@ -154,7 +154,7 @@ export const assets = {
 		},
 			"routes/_index": {
 			id: "routes/_index",
-			path: "_index",
+			index: true,
 			parentId: "root",
 			imports: [],
 			module: "/routes/_index.js",
@@ -198,4 +198,11 @@ export const assets = {
 		},		
 },
 };
-export const future = {};
+export const future = {
+    v2_errorBoundary: true,
+    v2_headers: true,
+    v2_meta: true,
+    v2_normalizeFormMethod: true,
+    v2_routeConvention: true,
+    v2_dev: true,
+};
